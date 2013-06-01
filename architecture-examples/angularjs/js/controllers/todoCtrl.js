@@ -7,67 +7,71 @@
  * - exposes the model to the template and provides event handlers
  */
 todomvc.controller('TodoCtrl', function TodoCtrl($scope, $location, todoStorage, filterFilter) {
-	var todos = $scope.todos = todoStorage.get();
 
-	$scope.newTodo = '';
-	$scope.editedTodo = null;
+  todoStorage.get(function(_todos) {
 
-	$scope.$watch('todos', function () {
-		$scope.remainingCount = filterFilter(todos, {completed: false}).length;
-		$scope.completedCount = todos.length - $scope.remainingCount;
-		$scope.allChecked = !$scope.remainingCount;
-		todoStorage.put(todos);
-	}, true);
+    var todos = $scope.todos = _todos;
 
-	if ($location.path() === '') {
-		$location.path('/');
-	}
+    $scope.newTodo = '';
+    $scope.editedTodo = null;
 
-	$scope.location = $location;
+    $scope.$watch('todos', function () {
+      $scope.remainingCount = filterFilter(todos, {completed: false}).length;
+      $scope.completedCount = todos.length - $scope.remainingCount;
+      $scope.allChecked = !$scope.remainingCount;
+      todoStorage.put(todos);
+    }, true);
 
-	$scope.$watch('location.path()', function (path) {
-		$scope.statusFilter = (path === '/active') ?
-			{ completed: false } : (path === '/completed') ?
-			{ completed: true } : null;
-	});
+    if ($location.path() === '') {
+      $location.path('/');
+    }
 
-	$scope.addTodo = function () {
-		if (!$scope.newTodo.length) {
-			return;
-		}
+    $scope.location = $location;
 
-		todos.push({
-			title: $scope.newTodo,
-			completed: false
-		});
+    $scope.$watch('location.path()', function (path) {
+      $scope.statusFilter = (path === '/active') ?
+      { completed: false } : (path === '/completed') ?
+      { completed: true } : null;
+    });
 
-		$scope.newTodo = '';
-	};
+    $scope.addTodo = function () {
+      if (!$scope.newTodo.length) {
+        return;
+      }
 
-	$scope.editTodo = function (todo) {
-		$scope.editedTodo = todo;
-	};
+      todos.push({
+        title: $scope.newTodo,
+        completed: false
+      });
 
-	$scope.doneEditing = function (todo) {
-		$scope.editedTodo = null;
-		if (!todo.title) {
-			$scope.removeTodo(todo);
-		}
-	};
+      $scope.newTodo = '';
+    };
 
-	$scope.removeTodo = function (todo) {
-		todos.splice(todos.indexOf(todo), 1);
-	};
+    $scope.editTodo = function (todo) {
+      $scope.editedTodo = todo;
+    };
 
-	$scope.clearCompletedTodos = function () {
-		$scope.todos = todos = todos.filter(function (val) {
-			return !val.completed;
-		});
-	};
+    $scope.doneEditing = function (todo) {
+      $scope.editedTodo = null;
+      if (!todo.title) {
+        $scope.removeTodo(todo);
+      }
+    };
 
-	$scope.markAll = function (completed) {
-		todos.forEach(function (todo) {
-			todo.completed = completed;
-		});
-	};
+    $scope.removeTodo = function (todo) {
+      todos.splice(todos.indexOf(todo), 1);
+    };
+
+    $scope.clearCompletedTodos = function () {
+      $scope.todos = todos = todos.filter(function (val) {
+        return !val.completed;
+      });
+    };
+
+    $scope.markAll = function (completed) {
+      todos.forEach(function (todo) {
+        todo.completed = completed;
+      });
+    };
+  });
 });
