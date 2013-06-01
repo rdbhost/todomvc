@@ -1,5 +1,0 @@
-/* base.css overrides */
-.filter-active .completed,
-.filter-completed .active {
-	display: none;
-}
