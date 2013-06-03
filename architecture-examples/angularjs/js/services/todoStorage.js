@@ -23,7 +23,7 @@ todomvc.factory('todoStorage', function () {
 
             if ( resp.row_count[0] > 0 ) {
 
-              _callback( resp.records.rows[0].stuff );
+              _callback( resp.records.rows[0][0] );
             }
             else {
               _callback( JSON.stringify([]) );

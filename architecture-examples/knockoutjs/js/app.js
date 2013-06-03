@@ -52,7 +52,54 @@
 		this.editing = ko.observable(false);
 	};
 
-	// our main view model
+  /*
+   * getItem and setItem get and set data from Rdbhost database
+   */
+  var STORAGE_ID = 'todos-knockoutjs',
+      role = "p0000001258";
+
+  function getItem(id, _callback) {
+
+    var getItemSQL = 'SELECT stuff FROM "todos" WHERE id = %s; \n';
+
+    return $.postData({
+
+      userName: role,
+      domain: 'www.rdbhost.com',
+      args: [id],
+      q: getItemSQL,
+      callback: function (resp) {
+
+        if ( resp.row_count[0] > 0 ) {
+
+          _callback( resp.records.rows[0][0] );
+        }
+        else {
+          _callback( JSON.stringify([]) );
+        }
+      }
+    });
+  }
+
+  function setItem(id, item) {
+
+    var putItemSQL =
+        'UPDATE "todos" SET stuff=%(stuff) WHERE id = %(id);        \n'+
+        'INSERT INTO "todos" (id,stuff) SELECT %(id), %(stuff)      \n'+
+        '  WHERE NOT EXISTS (SELECT 1 FROM "todos" WHERE id=%(id)); \n';
+
+    return $.postData({
+
+      userName: role,
+      domain: 'www.rdbhost.com',
+      q: putItemSQL,
+      namedParams: { 'id': id, 'stuff': item },
+      callback: function (resp) {}
+    });
+  }
+
+
+  // our main view model
 	var ViewModel = function (todos) {
 		var self = this;
 
@@ -148,20 +195,25 @@
 			return ko.utils.unwrapObservable(count) === 1 ? 'item' : 'items';
 		};
 
-		// internal computed observable that fires whenever anything changes in our todos
+    // internal computed observable that fires whenever anything changes in our todos
 		ko.computed(function () {
 			// store a clean copy to local storage, which also creates a dependency on the observableArray and all observables in each item
-			localStorage.setItem('todos-knockoutjs', ko.toJSON(self.todos));
+			setItem(STORAGE_ID, ko.toJSON(self.todos));
 		}).extend({
 			throttle: 500
 		}); // save at most twice per second
 	};
 
+  var todos = [];
 	// check local storage for todos
-	var todos = ko.utils.parseJson(localStorage.getItem('todos-knockoutjs'));
+	getItem(STORAGE_ID, function(data) {
+    var todos = ko.utils.parseJson(data),
+        Todos = todos.map(function(todo) { return new Todo(todo.title, todo.completed);});
+    viewModel.todos.push.apply(viewModel.todos, Todos);
+  });
 
 	// bind a new instance of our view model to the page
-	var viewModel = new ViewModel(todos || []);
+	var viewModel = new ViewModel(todos);
 	ko.applyBindings(viewModel);
 
 	// set up filter routing

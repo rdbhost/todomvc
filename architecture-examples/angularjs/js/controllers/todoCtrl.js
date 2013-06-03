@@ -8,9 +8,12 @@
  */
 todomvc.controller('TodoCtrl', function TodoCtrl($scope, $location, todoStorage, filterFilter) {
 
-  todoStorage.get(function(_todos) {
+    var todos = $scope.todos = [];
+    todoStorage.get(function(td) {
 
-    var todos = $scope.todos = _todos;
+      $scope.todos.push.apply($scope.todos,td);
+      $scope.$digest();
+    });
 
     $scope.newTodo = '';
     $scope.editedTodo = null;
@@ -74,4 +77,3 @@ todomvc.controller('TodoCtrl', function TodoCtrl($scope, $location, todoStorage,
       });
     };
   });
-});

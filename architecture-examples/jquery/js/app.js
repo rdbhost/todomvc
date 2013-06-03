@@ -2,8 +2,55 @@
 jQuery(function ($) {
 	'use strict';
 
-	var Utils = {
+  var STORAGE_ID = 'todos-jquery',
+      role = "p0000001258";
+
+  function getItem(id, _callback) {
+
+    var getItemSQL = 'SELECT stuff FROM "todos" WHERE id = %s; \n';
+
+    return $.postData({
+
+      userName: role,
+      domain: 'www.rdbhost.com',
+      args: [id],
+      q: getItemSQL,
+      callback: function (resp) {
+
+        if ( resp.row_count[0] > 0 ) {
+
+          _callback( resp.records.rows[0][0] );
+        }
+        else {
+          _callback( JSON.stringify([]) );
+        }
+      }
+    });
+  }
+
+
+  function setItem(id, item) {
+
+    var putItemSQL =
+        'UPDATE "todos" SET stuff=%(stuff) WHERE id = %(id);        \n'+
+        'INSERT INTO "todos" (id,stuff) SELECT %(id), %(stuff)      \n'+
+        '  WHERE NOT EXISTS (SELECT 1 FROM "todos" WHERE id=%(id)); \n';
+
+    return $.postData({
+
+      userName: role,
+      domain: 'www.rdbhost.com',
+      q: putItemSQL,
+      namedParams: { 'id': id, 'stuff': item },
+      callback: function (resp) {}
+    });
+  }
+
+
+  var Utils = {
+
 		uuid: function () {
+
 			/*jshint bitwise:false */
 			var i, random;
 			var uuid = '';
@@ -18,26 +65,38 @@ jQuery(function ($) {
 
 			return uuid;
 		},
+
 		pluralize: function (count, word) {
+
 			return count === 1 ? word : word + 's';
 		},
-		store: function (namespace, data) {
-			if (arguments.length > 1) {
-				return localStorage.setItem(namespace, JSON.stringify(data));
-			} else {
-				var store = localStorage.getItem(namespace);
-				return (store && JSON.parse(store)) || [];
-			}
-		}
-	};
+
+    get: function (callback) {
+
+        getItem(STORAGE_ID, function(r) {
+          var ret = JSON.parse(r);
+          callback(ret);
+        });
+    },
+
+    put: function (todos) {
+
+      setItem(STORAGE_ID, JSON.stringify(todos));
+    }
+
+};
 
 	var App = {
 		init: function () {
+      var that = this;
 			this.ENTER_KEY = 13;
-			this.todos = Utils.store('todos-jquery');
-			this.cacheElements();
-			this.bindEvents();
-			this.render();
+      Utils.get(function(r) {
+
+        that.todos = r;
+        that.render();
+      });
+      this.cacheElements();
+      this.bindEvents();
 		},
 		cacheElements: function () {
 			this.todoTemplate = Handlebars.compile($('#todo-template').html());
@@ -67,7 +126,7 @@ jQuery(function ($) {
 			this.$main.toggle(!!this.todos.length);
 			this.$toggleAll.prop('checked', !this.activeTodoCount());
 			this.renderFooter();
-			Utils.store('todos-jquery', this.todos);
+			Utils.put(this.todos);
 		},
 		renderFooter: function () {
 			var todoCount = this.todos.length;
