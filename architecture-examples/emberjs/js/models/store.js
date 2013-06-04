@@ -3,9 +3,9 @@
 
 Todos.Store = DS.Store.extend({
 	revision: 12,
-	adapter: 'Todos.LSAdapter'
+  adapter: 'Todos.RHAdapter'
 });
 
-Todos.LSAdapter = DS.LSAdapter.extend({
+Todos.RHAdapter = DS.RHAdapter.extend({
 	namespace: 'todos-emberjs'
 });
