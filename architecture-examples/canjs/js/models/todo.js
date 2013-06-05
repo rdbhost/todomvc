@@ -4,7 +4,7 @@
 
 	// Basic Todo entry model
 	// { text: 'todo', complete: false }
-	var Todo = can.Model.LocalStorage({
+	var Todo = can.Model.Rdbhost({
 		storageName: 'todos-canjs'
 	}, {
 		// Returns if this instance matches a given filter
