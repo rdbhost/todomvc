@@ -1,4 +1,4 @@
-# ![TodoMVC](https://raw.github.com/rdbhost/todomvc/gh-pages/media/logo.png)
+# ![TodoMVC](http://todomvc.rdbhost.com/site/img/todomvc.png)
 
 ## Helping you code an Rdbhost backend for your MV\* framework
 
