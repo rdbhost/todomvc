@@ -1,6 +1,6 @@
-# ![TodoMVC](https://raw.github.com/tastejs/todomvc/gh-pages/media/logo.png)
+# ![TodoMVC](https://raw.github.com/rdbhost/todomvc/gh-pages/media/logo.png)
 
-## Helping you select an MV\* framework
+## Helping you code an Rdbhost backend for your MV\* framework
 
 
 Developers these days are spoiled with choice when it comes to selecting an MV\* framework for structuring and organizing JavaScript web apps.
